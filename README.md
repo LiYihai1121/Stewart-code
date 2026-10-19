@@ -81,6 +81,18 @@ PID 支持串口在线调整，向串口发送 `P3.5I0.05D28` 形式的指令即
 
 **时序**：主循环分两档——快路径每轮处理按键与 LED，30 Hz 路径（`micros()` 计时）执行采样、PID 与逆解，避免阻塞输入响应。
 
+## 配套工具：实时监控台
+
+`viz/` 提供一个基于 Streamlit 的实时可视化工具：热力图展示 16 路传感器强度与球位分布，动态曲线跟踪球位与平台姿态，支持时间窗口与位置筛选，并对断流、越界、无球等异常给出提示。
+
+```bash
+cd viz
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+默认使用内置模拟数据，无需硬件即可预览界面；串口模式需先取消 `loop()` 中 `sendSerialData()` 或 `sendGraphData()` 的注释。详见 [viz/README.md](viz/README.md)。
+
 ## 已知限制
 
 - 无单元测试，验证依赖实机调试与串口数据观察。
