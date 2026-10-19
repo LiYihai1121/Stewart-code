@@ -32,7 +32,7 @@ streamlit run app.py
 
 ### 2. 串口设备
 
-固件当前把输出语句注释掉了，使用前需在 `loop()` 中启用其一：
+固件默认不输出数据，需把 `ENABLE_SERIAL_STREAM` 由 `0` 改为 `1` 后重新烧录，再选择下列任一输出：
 
 ```cpp
 // 方案 A：完整帧（16 路强度 + 球位 + 目标）
@@ -41,6 +41,8 @@ sendSerialData();
 // 方案 B：仅姿态与位置
 sendGraphData();
 ```
+
+开启后固件每 3 帧（10 Hz）输出一次完整帧。
 
 `sendSerialData()` 输出 20 个逗号分隔值：
 
