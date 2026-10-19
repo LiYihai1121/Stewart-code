@@ -16,6 +16,12 @@
 // CONFIGURATION CONSTANTS
 // ============================================================================
 
+// 上位机数据流开关：0 = 关闭（默认，行为与之前完全一致）；1 = 开启
+// 开启后每 SERIAL_STREAM_DIV 帧输出一次完整帧（30Hz / 3 = 10Hz），
+// 并允许通过串口发送 "P3.5I0.05D28" 在线调整 PID 增益。
+#define ENABLE_SERIAL_STREAM 0
+#define SERIAL_STREAM_DIV    3
+
 float P_GAIN = 3.0;
 float I_GAIN = 0.04;
 float D_GAIN = 25.0;
@@ -144,6 +150,7 @@ void setup() {
   servoOffsetC = constrain(servoOffsetC, 50, 150);
 
   Serial.begin(115200);
+  Serial.setTimeout(20);                   // 避免 readStringUntil 长时间阻塞
   ADCSRA = (ADCSRA & 0b11111000) | 0b101;  // ADC prescaler = 32 (faster)
 
   setDigitalPot(230);
@@ -163,7 +170,15 @@ void loop() {
 
   ButtonPress press = checkButton(mode == CALIBRATION);
 
-  // sendSerialData();
+#if ENABLE_SERIAL_STREAM
+  // 数据流分频输出：避免每帧 20 个浮点占满 115200 带宽
+  static uint8_t streamDiv = 0;
+  if (++streamDiv >= SERIAL_STREAM_DIV) {
+    streamDiv = 0;
+    sendSerialData();
+  }
+  handleSerialPID();   // 支持 "P3.5I0.05D28" 形式的在线调参
+#endif
 
   // Latch any detected press so it isn't lost if 30Hz gate hasn't fired yet
   if (press != NO_PRESS) lastPress = press;
