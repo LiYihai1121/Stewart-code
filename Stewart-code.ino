@@ -1,5 +1,5 @@
 /**
- * BaBot Code
+ * Stewart-code
  * Operating Modes:
  * - ON:           Active balancing with PID control
  * - OFF:          Platform level, no balancing
